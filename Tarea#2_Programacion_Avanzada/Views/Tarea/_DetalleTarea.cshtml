@@ -1,0 +1,69 @@
+﻿@model Tarea_2_Programacion_Avanzada.Models.Tarea
+
+<article class="card shadow-sm border-info" aria-labelledby="detalle-titulo-@Model.Id">
+
+    <header class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+        <h3 id="detalle-titulo-@Model.Id" class="h5 mb-0"> Detalle de Actividad </h3>
+        <span class="badge bg-light text-dark">ID: #@Model.Id</span>
+    </header>
+
+    <div class="card-body">
+        <!-- Titulo -->
+        <section class="mb-3" aria-label="Información principal">
+            <h4 class="h6 text-muted text-uppercase small">Título</h4>
+            <p class="fs-5 fw-bold text-dark">@Model.Titulo</p>
+        </section>
+        <!-- Descripcion -->
+        <section class="mb-3" aria-label="Descripción de la actividad">
+            <h4 class="h6 text-muted text-uppercase small">Descripción Detallada</h4>
+            <blockquote class="blockquote blockquote-custom bg-white p-2 border-start border-3 border-info rounded-1">
+                <p class="mb-0 small text-secondary text-wrap" style="white-space: pre-line;">@Model.Descripcion</p>
+            </blockquote>
+        </section>
+        <!-- Datos -->
+        <div class="row text-center bg-light py-2 rounded mx-0 mb-3">
+            <!-- Prioridad -->
+            <section class="col-6 border-end" aria-label="Prioridad asignada">
+                <h4 class="h6 text-muted text-uppercase small m-0">Prioridad</h4>
+                <span class="badge mt-1 @(Model.Prioridad == "Alta" ? "bg-danger" : Model.Prioridad == "Media" ? "bg-warning text-dark" : "bg-secondary")">
+                    @Model.Prioridad
+                </span>
+            </section>
+            <!-- Fecha -->
+            <section class="col-6" aria-label="Fecha de vencimiento">
+                <h4 class="h6 text-muted text-uppercase small m-0">Vence el</h4>
+                <time datetime="@Model.FechaLimite.ToString("yyyy-MM-dd")" class="d-block mt-1 fw-semibold text-dark">
+                    @Model.FechaLimite.ToString("dd/MM/yyyy")
+                </time>
+            </section>
+        </div>
+        <!-- Estado -->
+        <section class="d-flex align-items-center justify-content-center p-2 rounded @(Model.Completada ? "bg-success-subtle text-success" : "bg-warning-subtle text-warning-emphasis")" aria-label="Estado de avance">
+            <strong class="small">
+                Estado: @(Model.Completada ? "Completada / Finalizada" : "Pendiente de Ejecución")
+            </strong>
+        </section>
+    </div>
+    <!-- Botones -->
+    <footer class="card-footer bg-white d-flex justify-content-between align-items-center gap-2">
+        <div class="d-flex gap-2">
+            <!-- Editar -->
+            <button type="button" class="btn btn-sm btn-warning text-dark fw-semibold" onclick="habilitarModoEdicion(@Model.Id)">
+                Editar
+            </button>
+
+            <!-- Eliminar -->
+            @using (Html.BeginForm("DeleteConfirmed", "Tarea", new { id = Model.Id }, FormMethod.Post, new { onsubmit = "return confirm('¿Seguro que deseas eliminar esta actividad?');", @class = "d-inline" }))
+            {
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-sm btn-danger">
+                    Eliminar
+                </button>
+            }
+        </div>
+        <!-- Cerrar -->
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="cerrarDetalleDynamic()">
+            Cerrar
+        </button>
+    </footer>
+</article>

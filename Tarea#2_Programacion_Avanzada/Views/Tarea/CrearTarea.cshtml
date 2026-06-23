@@ -1,0 +1,114 @@
+﻿@model Tarea_2_Programacion_Avanzada.Models.Tarea
+@{
+    ViewBag.Title = "Registrar Nueva Tarea";
+}
+
+<main class="container mt-4">
+    <header class="row mb-4">
+        <div class="col-12 text-center">
+            <h1 class="display-5">Registrar Nueva Tarea</h1>
+            <p class="text-muted">Formulario de registro para el Control de Tareas Pendientes</p>
+        </div>
+    </header>
+
+    <section class="row justify-content-center">
+        <section class="col-md-7 col-lg-6 mb-5">
+            <section class="card p-4 shadow-lg">
+                <h2 class="h4 text-center w-100">Detalles de la Tarea</h2>
+                <hr class="w-100" />
+
+                @using (Html.BeginForm("Crear", "Tarea", FormMethod.Post, new { id = "formTarea", autocomplete = "off", @class = "w-100 text-center" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+
+                    //Título
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(model => model.Titulo, htmlAttributes: new { @class = "form-label fw-bold" })
+                        @Html.TextBoxFor(model => model.Titulo, new { @class = "form-control w-75 mx-auto", placeholder = "Ej. Aplicar MVC" })
+                        @Html.ValidationMessageFor(model => model.Titulo, "", new { @class = "text-danger small" })
+                    </div>
+
+                    //Descripción
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(model => model.Descripcion, htmlAttributes: new { @class = "form-label fw-bold" })
+                        @Html.TextAreaFor(model => model.Descripcion, new { @class = "form-control w-75 mx-auto", rows = "4", placeholder = "Escribe los detalles aquí...", id = "txtDescripcion" })
+                        @Html.ValidationMessageFor(model => model.Descripcion, "", new { @class = "text-danger small d-block" })
+                        <div class="text-center mt-1">
+                            <small class="text-muted"><span id="caracteres-restantes">150</span> caracteres permitidos.</small>
+                        </div>
+                    </div>
+
+                    //Fecha Límite
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(model => model.FechaLimite, htmlAttributes: new { @class = "form-label fw-bold" })
+                        @Html.TextBoxFor(model => model.FechaLimite, "{0:yyyy-MM-dd}", new { @class = "form-control w-75 mx-auto", type = "date" })
+                        @Html.ValidationMessageFor(model => model.FechaLimite, "", new { @class = "text-danger small" })
+                    </div>
+
+                    //Prioridad
+                    <div class="form-group mb-4">
+                        @Html.LabelFor(model => model.Prioridad, htmlAttributes: new { @class = "form-label fw-bold" })
+                        @Html.DropDownListFor(model => model.Prioridad, new List<SelectListItem>
+                        {
+                            new SelectListItem { Text = "Baja", Value = "Baja" },
+                            new SelectListItem { Text = "Media", Value = "Media", Selected = true },
+                            new SelectListItem { Text = "Alta", Value = "Alta" }
+                        }, new { @class = "form-control w-75 mx-auto" })
+                        @Html.ValidationMessageFor(model => model.Prioridad, "", new { @class = "text-danger small" })
+                    </div>
+
+                    //Botones
+                    <div class="d-flex gap-2 w-100">
+                        <a href="@Url.Action("Index", "Tarea")" class="btn btn-secondary w-100">Regresar</a>
+                        <button type="submit" class="btn btn-primary w-100">Guardar Tarea</button>
+                    </div>
+                }
+            </section>
+        </section>
+    </section>
+</main>
+<!-- Scripts (Apoyado con IA) -->
+@section scripts {
+    @* Activar la validación nativa de las DataAnnotation *@
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $(document).ready(function () {
+            //Contador de caracteres
+            var maxCaracteres = 150;
+            $('#txtDescripcion').on('input', function () {
+                var longitud = $(this).val().length;
+                var restantes = maxCaracteres - longitud;
+                $('#caracteres-restantes').text(restantes);
+
+                if (restantes < 0) {
+                    $('#caracteres-restantes').addClass('text-danger fw-bold');
+                } else {
+                    $('#caracteres-restantes').removeClass('text-danger fw-bold');
+                }
+            });
+
+            $('#txtDescripcion').trigger('input');
+
+
+            // Fecha Limite
+            $('#formTarea').submit(function (e) {
+                var txtFechaValue = $('#FechaLimite').val();
+
+                if (txtFechaValue) {
+                    var parts = txtFechaValue.split('-');
+                    var fechaSeleccionada = new Date(parts[0], parts[1] - 1, parts[2]);
+
+                    var hoy = new Date();
+                    hoy.setHours(0, 0, 0, 0);
+
+                    if (fechaSeleccionada < hoy) {
+                        e.preventDefault(); // Detiene el envío del formulario
+                        alert("Error: La fecha límite no puede ser menor al día de hoy.");
+                    }
+                }
+            });
+        });
+    </script>
+}

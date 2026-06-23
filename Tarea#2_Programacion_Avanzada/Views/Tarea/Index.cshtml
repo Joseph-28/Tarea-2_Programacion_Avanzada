@@ -1,0 +1,244 @@
+﻿@model IEnumerable<Tarea_2_Programacion_Avanzada.Models.Tarea>
+@{
+    ViewBag.Title = "Control de Tareas Pendientes";
+}
+
+<main class="container mt-4">
+
+    <header class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5">Control de Tareas Pendientes</h1>
+            <p class="text-muted">Desarrollo de la Tarea #2 | Programación Avanzada en Web (UNED)</p>
+        </div>
+    </header>
+    <!-- Mensaje success -->
+    @if (TempData["MensajeExito"] != null)
+    {
+        <aside class="alert alert-success alert-dismissible fade show" role="alert" aria-live="polite">
+            <strong>¡Éxito!</strong> @TempData["MensajeExito"]
+        </aside>
+    }
+
+    <section class="row mb-4" aria-label="Estadísticas de tareas">
+        <!-- Tareas totales -->
+        <div class="col-md-6">
+            <article class="card bg-light p-3 text-center">
+                <h2 class="h5 text-secondary">Tareas Totales</h2>
+                <p class="fs-4 m-0"><span class="badge bg-primary">@ViewBag.TotalTareas</span></p>
+            </article>
+        </div>
+        <!-- Tareas completadas -->
+        <div class="col-md-6">
+            <article class="card bg-light p-3 text-center">
+                <h2 class="h5 text-secondary">Tareas Completadas</h2>
+                <p class="fs-4 m-0"><span id="contador-completadas" class="badge bg-success">@ViewBag.Completadas</span></p>
+            </article>
+        </div>
+    </section>
+
+    <section class="row">
+        <section class="col-12 mb-4" aria-labelledby="titulo-listado">
+            <div class="card p-3 shadow-sm">
+                <h2 id="titulo-listado" class="h4">Listado de Actividades</h2>
+                <hr />
+                <!-- Tabla de tareas -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <!-- Encabezado -->
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col" class="text-center" style="width: 10%;">¿Completada?</th>
+                                <th scope="col" class="text-center" style="width: 50%;">Tarea / Detalles</th>
+                                <th scope="col" class="text-center" style="width: 10%;">Prioridad</th>
+                                <th scope="col" class="text-center" style="width: 10%;">Fecha Límite</th>
+                                <th scope="col" class="text-center" style="width: 20%;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <!-- Datos -->
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr id="fila-@item.Id" class="@(item.Completada ? "table-success text-decoration-line-through text-muted" : "")">
+                                    <td class="text-center">
+                                        <input type="checkbox" checked="@item.Completada" class="chk-estado" data-id="@item.Id" aria-label="Marcar como completada" style="transform: scale(1.3); cursor: pointer;" />
+                                    </td>
+                                    <td>
+                                        <strong>@item.Titulo</strong><br />
+                                        <small class="text-wrap">
+                                            @if (item.Descripcion != null && item.Descripcion.Length > 60)
+                                            {
+                                                @(item.Descripcion.Substring(0, 60) + "...")
+                                            }
+                                            else
+                                            {
+                                                @item.Descripcion
+                                            }
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge @(item.Prioridad == "Alta" ? "bg-danger" : item.Prioridad == "Media" ? "bg-warning text-dark" : "bg-secondary")">
+                                            @item.Prioridad
+                                        </span>
+                                    </td>
+                                    <td>@item.FechaLimite.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <button type="button"
+                                                class="btn btn-sm btn-info text-white btn-ver-detalle"
+                                                data-id="@item.Id"
+                                                aria-label="Ver detalles de la tarea: @item.Titulo">
+                                            Ver Detalle
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </section>
+</main>
+
+<!-- Modal detalles -->
+<div class="modal fade" id="modalDetalleTarea" tabindex="-1" aria-labelledby="modalTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 bg-transparent" id="contenedor-modal-dinamico">
+        </div>
+    </div>
+</div>
+
+<!-- Modal editar -->
+<div class="modal fade" id="modalEditarTarea" tabindex="-1" aria-labelledby="tituloModalEditar" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <header class="modal-header bg-warning text-dark">
+                <h3 class="modal-title h5" id="tituloModalEditar">Modificar Tarea</h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </header>
+
+            @using (Html.BeginForm("Editar", "Tarea", FormMethod.Post, new { id = "formEditarTarea" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Id" id="editId" />
+
+                <div class="modal-body text-center">
+                    <div class="form-group mb-2">
+                        <label for="editTitulo" class="form-label fw-bold">Título</label>
+                        <input type="text" name="Titulo" id="editTitulo" class="form-control w-75 mx-auto" required />
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="editDescripcion" class="form-label fw-bold">Descripción</label>
+                        <textarea name="Descripcion" id="editDescripcion" class="form-control w-75 mx-auto" rows="3" required></textarea>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="editFecha" class="form-label fw-bold">Fecha Límite</label>
+                        <input type="date" name="FechaLimite" id="editFecha" class="form-control w-75 mx-auto" required />
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="editPrioridad" class="form-label fw-bold">Prioridad</label>
+                        <select name="Prioridad" id="editPrioridad" class="form-control w-75 mx-auto">
+                            <option value="Baja">Baja</option>
+                            <option value="Media">Media</option>
+                            <option value="Alta">Alta</option>
+                        </select>
+                    </div>
+                </div>
+
+                <footer class="modal-footer text-center">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-sm btn-primary">Guardar Cambios</button>
+                </footer>
+            }
+        </div>
+    </div>
+</div>
+<!-- Scripts (Apoyado con IA) -->
+@section scripts {
+    <script>
+        $(document).ready(function () {
+
+            // Cambio de estado
+            $('.chk-estado').change(function () {
+                var checkbox = $(this);
+                var tareaId = checkbox.data('id');
+
+                $.ajax({
+                    url: '@Url.Action("CambiarEstadoAjax", "Tarea")',
+                    type: 'POST',
+                    data: { id: tareaId },
+                    success: function (response) {
+                        if (response.success) {
+                            var fila = $('#fila-' + tareaId);
+
+                            if (response.nuevoEstado) {
+                                fila.addClass('table-success text-decoration-line-through text-muted');
+                            } else {
+                                fila.removeClass('table-success text-decoration-line-through text-muted');
+                            }
+
+                            $('#contador-completadas').text(response.totalCompletadas);
+                        } else {
+                            alert("Ocurrió un error: " + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Error en la comunicación con el servidor.");
+                    }
+                });
+            });
+
+            // Carga modal detalles
+            $('.btn-ver-detalle').click(function () {
+                var tareaId = $(this).data('id');
+
+                $.ajax({
+                    url: '@Url.Action("ObtenerDetalleAjax", "Tarea")',
+                    type: 'GET',
+                    data: { id: tareaId },
+                    success: function (htmlResponse) {
+                        $('#contenedor-modal-dinamico').html(htmlResponse);
+                        $('#modalDetalleTarea').modal('show');
+                    },
+                    error: function () {
+                        alert("Error: No se pudo obtener el detalle de la tarea seleccionada.");
+                    }
+                });
+            });
+
+            window.cerrarDetalleDynamic = function() {
+                $('#modalDetalleTarea').modal('hide');
+            };
+
+        });
+
+        // Carga modal editar
+        window.habilitarModoEdicion = function(tareaId) {
+            $('#modalDetalleTarea').modal('hide');
+
+            $.ajax({
+                url: '@Url.Action("ObtenerTareaPorIdAjax", "Tarea")',
+                type: 'GET',
+                data: { id: tareaId },
+                success: function (response) {
+                    if (response.success) {
+                        $('#editId').val(response.id);
+                        $('#editTitulo').val(response.titulo);
+                        $('#editDescripcion').val(response.descripcion);
+                        $('#editFecha').val(response.fecha);
+                        $('#editPrioridad').val(response.prioridad);
+
+                        $('#modalEditarTarea').modal('show');
+                    } else {
+                        alert("Error: " + response.message);
+                    }
+                },
+                error: function () {
+                    alert("No se pudieron precargar los datos de la tarea.");
+                }
+            });
+        };
+    </script>
+}

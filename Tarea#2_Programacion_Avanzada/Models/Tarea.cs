@@ -13,12 +13,13 @@ namespace Tarea_2_Programacion_Avanzada.Models
 
         //Titulo
         [Required(ErrorMessage = "El título de la tarea es obligatorio.")]
-        [StringLength(100, ErrorMessage = "El título no puede exceder los 100 caracteres.")]
+        [StringLength(50, ErrorMessage = "El título no puede exceder los 50 caracteres.")]
         [Display(Name = "Título de la Tarea")]
         public string Titulo { get; set; }
 
         //Descripcion
         [Required(ErrorMessage = "La descripción es obligatoria.")]
+        [StringLength(150, ErrorMessage = "La descripción no puede superar los 150 caracteres.")]
         [DataType(DataType.MultilineText)]
         [Display(Name = "Descripción")]
         public string Descripcion { get; set; }

@@ -102,59 +102,15 @@
 <!-- Modal detalles -->
 <div class="modal fade" id="modalDetalleTarea" tabindex="-1" aria-labelledby="modalTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 bg-transparent" id="contenedor-modal-dinamico">
+        <div class="modal-content border-0 bg-transparent" id="contenedor-modal-detalles">
         </div>
     </div>
 </div>
 
 <!-- Modal editar -->
-<div class="modal fade" id="modalEditarTarea" tabindex="-1" aria-labelledby="tituloModalEditar" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <header class="modal-header bg-warning text-dark">
-                <h3 class="modal-title h5" id="tituloModalEditar">Modificar Tarea</h3>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </header>
+<div class="modal-content border-0 bg-transparent" id="contenedor-modal-editar"></div>
 
-            @using (Html.BeginForm("Editar", "Tarea", FormMethod.Post, new { id = "formEditarTarea" }))
-            {
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="Id" id="editId" />
 
-                <div class="modal-body text-center">
-                    <div class="form-group mb-2">
-                        <label for="editTitulo" class="form-label fw-bold">Título</label>
-                        <input type="text" name="Titulo" id="editTitulo" class="form-control w-75 mx-auto" required />
-                    </div>
-
-                    <div class="form-group mb-2">
-                        <label for="editDescripcion" class="form-label fw-bold">Descripción</label>
-                        <textarea name="Descripcion" id="editDescripcion" class="form-control w-75 mx-auto" rows="3" required></textarea>
-                    </div>
-
-                    <div class="form-group mb-2">
-                        <label for="editFecha" class="form-label fw-bold">Fecha Límite</label>
-                        <input type="date" name="FechaLimite" id="editFecha" class="form-control w-75 mx-auto" required />
-                    </div>
-
-                    <div class="form-group mb-2">
-                        <label for="editPrioridad" class="form-label fw-bold">Prioridad</label>
-                        <select name="Prioridad" id="editPrioridad" class="form-control w-75 mx-auto">
-                            <option value="Baja">Baja</option>
-                            <option value="Media">Media</option>
-                            <option value="Alta">Alta</option>
-                        </select>
-                    </div>
-                </div>
-
-                <footer class="modal-footer text-center">
-                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-sm btn-primary">Guardar Cambios</button>
-                </footer>
-            }
-        </div>
-    </div>
-</div>
 <!-- Scripts (Apoyado con IA) -->
 @section scripts {
     <script>
@@ -199,7 +155,7 @@
                     type: 'GET',
                     data: { id: tareaId },
                     success: function (htmlResponse) {
-                        $('#contenedor-modal-dinamico').html(htmlResponse);
+                        $('#contenedor-modal-detalles').html(htmlResponse);
                         $('#modalDetalleTarea').modal('show');
                     },
                     error: function () {
@@ -216,27 +172,19 @@
 
         // Carga modal editar
         window.habilitarModoEdicion = function(tareaId) {
+            // Cierra el modal de detalles anterior
             $('#modalDetalleTarea').modal('hide');
 
             $.ajax({
                 url: '@Url.Action("ObtenerTareaPorIdAjax", "Tarea")',
                 type: 'GET',
                 data: { id: tareaId },
-                success: function (response) {
-                    if (response.success) {
-                        $('#editId').val(response.id);
-                        $('#editTitulo').val(response.titulo);
-                        $('#editDescripcion').val(response.descripcion);
-                        $('#editFecha').val(response.fecha);
-                        $('#editPrioridad').val(response.prioridad);
-
-                        $('#modalEditarTarea').modal('show');
-                    } else {
-                        alert("Error: " + response.message);
-                    }
+                success: function (htmlResult) {
+                    $('#contenedor-modal-editar').html(htmlResult);
+                    $('#modalEditarTarea').modal('show');
                 },
                 error: function () {
-                    alert("No se pudieron precargar los datos de la tarea.");
+                    alert("Error: No se pudo cargar la interfaz de edición de la tarea.");
                 }
             });
         };

@@ -1,0 +1,50 @@
+﻿@model Tarea_2_Programacion_Avanzada.Models.Tarea
+
+<article class="modal fade" id="modalEditarTarea" tabindex="-1" aria-labelledby="tituloModalEditar" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content card shadow-sm border-info">
+            <header class="modal-header bg-warning text-dark">
+                <h3 class="modal-title h5" id="tituloModalEditar">Modificar Tarea</h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </header>
+
+            @using (Html.BeginForm("Editar", "Tarea", FormMethod.Post, new { id = "formEditarTarea" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.Id)
+
+                <div class="modal-body text-center">
+                    <!-- Titulo -->
+                    <div class="form-group mb-2">
+                        <label class="form-label fw-bold">Título</label>
+                        @Html.TextBoxFor(m => m.Titulo, new { @class = "form-control w-75 mx-auto", required = "required" })
+                    </div>
+
+                    <!-- Descripcion -->
+                    <div class="form-group mb-2">
+                        <label class="form-label fw-bold">Descripción</label>
+                        @Html.TextAreaFor(m => m.Descripcion, new { @class = "form-control w-75 mx-auto", rows = "3", required = "required" })
+                    </div>
+
+                    <!-- Fehca Limite -->
+                    <div class="form-group mb-2">
+                        <label class="form-label fw-bold">Fecha Límite</label>
+                        <input type="date" name="FechaLimite" class="form-control w-75 mx-auto" required
+                               value="@(Model.FechaLimite != null ? Model.FechaLimite.ToString("yyyy-MM-dd") : "")" />
+                    </div>
+
+                    <!-- Prioridad -->
+                    <div class="form-group mb-2">
+                        <label class="form-label fw-bold">Prioridad</label>
+                        @Html.DropDownListFor(m => m.Prioridad, new SelectList(new[] { "Baja", "Media", "Alta" }), new { @class = "form-control w-75 mx-auto" })
+                    </div>
+                </div>
+                <!-- Botones -->
+                <footer class="modal-footer text-center">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-sm btn-primary">Guardar Cambios</button>
+                </footer>
+            }
+        </div>
+    </div>
+</article>

@@ -121,25 +121,17 @@ namespace Tarea_2_Programacion_Avanzada.Controllers
         }
         // Obtener datos para editar
         [HttpGet]
-        public JsonResult ObtenerTareaPorIdAjax(int id)
+        public ActionResult ObtenerTareaPorIdAjax(int id)
         {
             var tareas = (List<Tarea>)Session["ListaTareas"] ?? new List<Tarea>();
             var tarea = tareas.FirstOrDefault(t => t.Id == id);
 
-            if (tarea != null)
+            if (tarea == null)
             {
-                return Json(new
-                {
-                    success = true,
-                    id = tarea.Id,
-                    titulo = tarea.Titulo,
-                    descripcion = tarea.Descripcion,
-                    fecha = tarea.FechaLimite.ToString("yyyy-MM-dd"),
-                    prioridad = tarea.Prioridad
-                }, JsonRequestBehavior.AllowGet);
+                return HttpNotFound("La tarea solicitada no fue encontrada.");
             }
 
-            return Json(new { success = false, message = "Tarea no encontrada." }, JsonRequestBehavior.AllowGet);
+            return PartialView("_EditarTarea", tarea);
         }
 
         // Editar datos
